@@ -1,5 +1,4 @@
 rem ptrefpkg.sql
-set termout on echo on trimspool on 
 spool ptrefpkg
 ----------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
@@ -353,7 +352,7 @@ BEGIN
  dbms_output.put_line('<html><head>');
  dbms_output.put_line('<title>PeopleTools Table Reference - Index</title>');
  tablestyle;
- dbms_output.put_line('</head><body><h1>PeopleTools Records</h1><table>');
+ dbms_output.put_line('</head><body><h1>PeopleTools Records Reference</h1><table>');
  dbms_output.put_line('<tr><th>Tables</th><th>Views</th></tr>');
  FOR i IN (
   SELECT DISTINCT SUBSTR(r.recname,1,CASE WHEN SUBSTR(r.recname,1,2) IN('PS') THEN 3 ELSE 1 END) index_section
