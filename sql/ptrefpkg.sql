@@ -1,11 +1,12 @@
 rem ptrefpkg.sql
+set echo on lines 200 pages 999
+@@ptrefdata.sql
 spool ptrefpkg
 ----------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PACKAGE ptref AS 
   PROCEDURE pthtml
-  (p_recname IN VARCHAR2
-  ,p_oracol  IN BOOLEAN DEFAULT FALSE);
+  (p_recname IN VARCHAR2);
 
   PROCEDURE ptindex;
 
@@ -20,7 +21,28 @@ CREATE OR REPLACE PACKAGE BODY ptref AS
 k_space CONSTANT VARCHAR2(30) := '&'||'nbsp;';
 k_amp   CONSTANT VARCHAR2(10) := '&'||'amp';
 k_copy  CONSTANT VARCHAR2(10) := '&'||'copy';
-k_key   CONSTANT VARCHAR2(30) := '<img border="0" src="../jpg/key.gif">';
+k_key   CONSTANT VARCHAR2(40) := '<img border="0" src="../jpg/key.gif">';
+----------------------------------------------------------------------------------------------------
+FUNCTION ptreclink(p_recname IN VARCHAR) RETURN VARCHAR IS
+  l_found INTEGER := 0;
+  l_html VARCHAR2(100);
+BEGIN
+   SELECT 1
+   INTO   l_found
+   FROM   psrecdefn r
+-- ,   	  psobjgroup o 
+   WHERE  (r.objectownerid = 'PPT' OR r.recname = r.sqltablename)
+-- AND    o.objgroupid = 'PEOPLETOOLS'
+-- AND    o.entname = r.recname
+   AND    r.rellangrecname = p_recname;
+
+  IF l_found = 1 THEN
+    l_html := '<a href="'||LOWER(p_recname)||'.html">'||p_recname||'</a>';
+  ELSE
+    l_html := p_recname;
+  END IF;
+  RETURN l_html;
+END ptreclink;
 ----------------------------------------------------------------------------------------------------
 PROCEDURE tablestyle IS
 BEGIN
@@ -30,8 +52,7 @@ BEGIN
 END tablestyle;
 ----------------------------------------------------------------------------------------------------
 PROCEDURE pthtml
-(p_recname IN VARCHAR2
-, p_oracol IN BOOLEAN DEFAULT FALSE) IS
+(p_recname IN VARCHAR2) IS
  l_recname        VARCHAR2(15);
  l_recdescr       VARCHAR2(30);
  l_rellangrecname VARCHAR2(15);
@@ -67,7 +88,7 @@ BEGIN
 
  dbms_output.put_line('<html><head>');
  dbms_output.put_line('<title>'||l_recname||' - '||l_recdescr||' - PeopleTools Table Reference</title>');
- dbms_output.put_line('<base target="_blank">');
+ dbms_output.put_line('<base target="_self">');
  dbms_output.put_line('</head><body>');
  dbms_output.put_line('<table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td align="left" valign="top"><h1>'||l_recname||'</h1></td>');
  dbms_output.put_line('<td align="right" valign="top"><p align="right"><A HREF="javascript:javascript:history.go(-1)">back</A></td></tr></table>');
@@ -78,12 +99,7 @@ BEGIN
  END IF;
 
  IF l_rellangrecname > ' ' THEN
-  SELECT rectype INTO l_rectype FROM psrecdefn WHERE recname = l_rellangrecname;
-  IF l_rectype = 0 THEN
-   dbms_output.put_line('<li>Related language record: <a target="_self" href="'||LOWER(l_rellangrecname)||'.html">'||l_rellangrecname||'</a></li><p>');
-  ELSE
-   dbms_output.put_line('<li>Related language record: '||l_rellangrecname||'</li><p>');
-  END IF;
+  dbms_output.put_line('<li>Related language record: '||ptreclink(l_rellangrecname)||'</li><p>');
  ELSE 
   l_counter := 0;
   FOR j IN (
@@ -100,8 +116,8 @@ BEGIN
     dbms_output.put_line('<li>Related language record for');
     l_counter := 1;
    END IF;
-   IF j.rectype = 0 THEN
-    dbms_output.put_line(' <a target="_self" href="'||j.recname||'.html">'||j.recname||'</a>');  
+   IF j.rectype IN(0,1) THEN
+    dbms_output.put_line(' <a href="'||j.recname||'.html">'||j.recname||'</a>');  
    ELSE
     dbms_output.put_line(' '||j.recname);  
    END IF;
@@ -114,7 +130,7 @@ BEGIN
  IF l_parentrecname > ' ' THEN
   SELECT rectype INTO l_rectype FROM psrecdefn WHERE recname = l_parentrecname;
   IF l_rectype = 0 THEN
-   dbms_output.put_line('<li>Parent record: <a target="_self" href="'
+   dbms_output.put_line('<li>Parent record: <a href="'
 	||LOWER(l_parentrecname)||'.html">'||l_parentrecname||'</a></li><p>');
   ELSE
    dbms_output.put_line('<li>Parent record: '||l_parentrecname||'</li><p>');
@@ -136,7 +152,7 @@ BEGIN
     l_counter := 1;
    END IF;
    IF j.rectype = 0 THEN
-    dbms_output.put_line(' <a target="_self" href="'||j.recname||'.html">'||j.recname||'</a>');  
+    dbms_output.put_line(' <a href="'||j.recname||'.html">'||j.recname||'</a>');  
    ELSE
     dbms_output.put_line(' '||j.recname);  
    END IF;
@@ -148,34 +164,32 @@ BEGIN
 
  dbms_output.put_line('<table border="1" style="border-style:double; border-width:0; padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 0px" cellspacing="0" cellpadding="1">');
 
- IF p_oracol THEN
-  dbms_output.put_line('<tr>');
-  dbms_output.put_line('<th>'||l_recname||'</th>');
-  dbms_output.put_line('<th>DBA_</th>');
-  dbms_output.put_line('<th rowspan="3">Description of PeopleTools Column</th>');
-  dbms_output.put_line('</tr>');
   dbms_output.put_line('<tr>');
   dbms_output.put_line('<th align="left">PeopleSoft Field Name</th>');
   dbms_output.put_line('<th align="left">Field Type</th>');
-  dbms_output.put_line('<th align="left">Corresponding Oracle Column Name</th>');
-  dbms_output.put_line('</tr>');
- ELSE
-  dbms_output.put_line('<tr>');
-  dbms_output.put_line('<th align="left">PeopleSoft Field Name</th>');
-  dbms_output.put_line('<th align="left">Field Type</th>');
-  dbms_output.put_line('<th align="left">Description</th>');
-  dbms_output.put_line('</tr>');
- END IF; 
+ dbms_output.put_line('<th align="left">Column Type</th>');
+ dbms_output.put_line('<th align="left">Description</th>');
+ dbms_output.put_line('</tr>');
 
  l_newline := FALSE;
  FOR i IN (
    WITH x AS (
      SELECT object_type
 	 ,      object_name fieldname
+	 ,      object_alias recname
+	 ,      options
      ,      other_xml 
      FROM   plan_table
      WHERE  statement_id = 'PTREF'
      AND    object_type IN('FIELD','XLAT')
+   ), ft as (
+     SELECT id   fieldtype
+	 ,      SUBSTR(other_xml,3) fieldtype_descr
+     FROM   plan_table
+     WHERE  statement_id = 'PTREF'
+     AND    object_type IN('VAL')
+	 AND    object_alias = 'PSDBFIELD'
+	 AND    object_name = 'FIELDTYPE'
    )
    SELECT f.fieldname, f.useedit
    ,      d.fieldtype, d.descrlong, d.length, d.decimalpos
@@ -185,9 +199,13 @@ BEGIN
    ,      f.defrecname, f.deffieldname
    ,      r.rectype erectype
    ,      CASE WHEN (r.objectownerid = 'PPT' OR r.recname = r.sqltablename) THEN 1 ELSE 0 END pt
-   ,      x.object_type, x.other_xml
+   ,      NVL(x1.object_type, x2.object_type) object_type
+   ,      NVL(x1.options, x2.options) options
+   ,      NVL(x1.other_xml, x2.other_xml) other_xml
+   ,      ft.fieldtype_descr
    FROM psrecfielddb f
-        LEFT OUTER JOIN x ON x.fieldname = f.fieldname
+        LEFT OUTER JOIN x x1 ON x1.fieldname = f.fieldname AND (x1.recname IN(f.recname,'*') OR NOT x1.recname = '-'||f.recname)
+		LEFT OUTER JOIN x x2 ON x2.fieldname = f.fieldname AND 1=2
         LEFT OUTER JOIN psrecdefn r
         ON r.recname = f.edittable
 	    LEFT OUTER JOIN psdbfldlabl L1
@@ -197,6 +215,8 @@ BEGIN
 		ON l2.fieldname = f.fieldname
 		AND l2.default_label = 1
 	  , psdbfield d
+	    LEFT OUTER JOIN ft 
+		ON ft.fieldtype = d.fieldtype
    WHERE f.fieldname = d.fieldname
    AND   f.recname = l_recname 
    ORDER BY fieldnum
@@ -209,16 +229,24 @@ BEGIN
  ELSE
   l_key := '';
  END IF;
- IF i.other_xml IS NOT NULL THEN
-  dbms_output.put_line('<td valign="top">'||l_key||'<a name="'||i.fieldname||'" target="_self" href="'||i.other_xml||'">'||i.fieldname||'</a></td>');
+ IF i.options IS NOT NULL THEN
+  dbms_output.put_line('<td valign="top">'||l_key||'<a name="'||i.fieldname||'" href="'||i.options||'#'||l_recname||'">'||i.fieldname||'</a></td>');
  ELSE
   dbms_output.put_line('<td valign="top">'||l_key||'<a name="'||i.fieldname||'">'||i.fieldname||'</a></td>');
  END IF;
 
- IF p_oracol THEN 
-  dbms_output.put_line('<td valign="top">'||k_space||'</td>');
+ --field definition processing
+ l_col_def := i.fieldtype_descr;
+ IF i.length>0 THEN
+   l_col_def := l_col_def||'('||i.length;
+   IF i.fieldtype IN (2,3) THEN
+     l_col_def := l_col_def||','||i.decimalpos;
+   END IF;
+   l_col_def := l_col_def||')';
  END IF;
+ dbms_output.put_line('<td valign="top">'||l_col_def||'</td>');
 
+ --column definition processing 
  IF i.fieldtype = 0 THEN
   l_datatype := 'VARCHAR2';
 
@@ -279,26 +307,58 @@ BEGIN
 
  dbms_output.put_line('<td valign="top">'||l_col_def||'</td>');
 
+ --column description processing
  dbms_output.put_line('<td valign="top">');
- IF i.descrlong IS NOT NULL THEN
-  dbms_output.put_line(i.descrlong);
-  l_newline := TRUE;
+ IF i.descrlong IS NOT NULL  THEN
+  l_col_def := RTRIM(i.descrlong);
  ELSIF i.longname IS NOT NULL THEN
-  dbms_output.put_line(i.longname);
+  l_col_def := RTRIM(i.longname);
+ END IF;
+ IF i.other_xml IS NOT NULL THEN
+  l_col_def := l_col_def||RTRIM(i.other_xml);
+ END IF;
+ IF l_col_def IS NOT NULL THEN
+  dbms_output.put_line(l_col_def);
   l_newline := TRUE;
  END IF;
 
- IF i.object_type = 'XLAT' THEN
-  dbms_output.put_line('<a target="_self" href="'||i.other_xml||'">translate values</a>');
+ IF i.object_type = 'XLAT' AND i.options IS NOT NULL THEN
+  dbms_output.put_line('<a href="'||i.options||'">translate values</a>');
  ELSE
+  
   --useeedit bit 9 set if its an xlat field, but we do not check the bit, just list the xlats
-  FOR j IN (SELECT x.* FROM psxlatitem x WHERE fieldname = i.fieldname ORDER BY x.fieldvalue) LOOP
+  FOR j IN (
+    SELECT fieldvalue, xlatlongname, xlatshortname 
+	FROM psxlatitem x 
+	WHERE fieldname = i.fieldname 
+    ORDER BY fieldvalue
+  ) LOOP
    IF l_newline THEN
     dbms_output.put_line('<br>');
    END IF;
    dbms_output.put_line(j.fieldvalue||'='||NVL(j.xlatlongname,j.xlatshortname));
    l_newline := TRUE;
   END LOOP;
+
+  FOR j IN (
+	SELECT id, other_xml
+	FROM  plan_table
+	WHERE statement_id = 'PTREF'
+	AND   object_type = 'VAL'
+    AND   object_name = i.fieldname
+	AND  (object_alias IN(p_recname,'*'))
+    ORDER BY id
+  ) LOOP
+   IF l_newline THEN
+    dbms_output.put_line('<br>');
+   END IF;
+   dbms_output.put_line(j.other_xml);
+   l_newline := TRUE;
+  END LOOP;
+
+
+
+
   IF NOT l_newline THEN
    dbms_output.put_line(k_space);
   END IF;
@@ -317,10 +377,10 @@ BEGIN
  IF i.edittable > ' ' THEN
   dbms_output.put_line('<p>Prompt Table:');
   IF i.erectype IN(0,1) AND i.pt = 1 THEN 
-   dbms_output.put_line('<a target="_self" href="'
+   dbms_output.put_line('<a href="'
 	||LOWER(i.edittable)||'.html">'||i.edittable||'</a>');
    IF i.setcntrlfld > ' ' THEN
-    dbms_output.put_line('<br>Set Control Field: <a target="_self" href="'
+    dbms_output.put_line('<br>Set Control Field: <a href="'
 	||LOWER(i.edittable)||'.html#'||i.setcntrlfld||'">'||i.setcntrlfld||'</a>');
    END IF;
   ELSE
@@ -348,9 +408,11 @@ BEGIN
 END pthtml;
 ----------------------------------------------------------------------------------------------------
 PROCEDURE ptindex IS
+ k_ptdir CONSTANT VARCHAR2(30) := 'peopletools/';
 BEGIN
  dbms_output.put_line('<html><head>');
  dbms_output.put_line('<title>PeopleTools Table Reference - Index</title>');
+ dbms_output.put_line('<base target="_self">');
  tablestyle;
  dbms_output.put_line('</head><body><h1>PeopleTools Records Reference</h1><table>');
  dbms_output.put_line('<tr><th>Tables</th><th>Views</th></tr>');
@@ -380,7 +442,7 @@ BEGIN
      IF i.index_section = j.index_section THEN  
        dbms_output.put_line('<b>'||j.index_section||'</b> ');  
 	 ELSE
-       dbms_output.put_line('<a target="_self" href="#'||j.index_section||'">'||j.index_section||'</a> ');  
+       dbms_output.put_line('<a href="#'||j.index_section||'">'||j.index_section||'</a> ');  
      END IF;
    END LOOP;
    dbms_output.put_line('</th></tr><tr>');
@@ -396,7 +458,7 @@ BEGIN
        and    r.rectype = j
        ORDER BY r.recname
     ) LOOP
-      dbms_output.put_line('<a name="'||k.recname||'" href="'||LOWER(k.recname)||'.html">'||k.recname||'</a> - '||k.recdescr||'<br>');
+      dbms_output.put_line('<a name="'||k.recname||'" href="'||k_ptdir||LOWER(k.recname)||'.html">'||k.recname||'</a> - '||k.recdescr||'<br>');
     END LOOP;
     dbms_output.put_line('</td>');
    END LOOP;
@@ -426,6 +488,7 @@ WHERE  f.fieldname = p_fieldname;
 
  dbms_output.put_line('<html>');
  dbms_output.put_line('<head><title>'||p_fieldname||' - '||l_descrlong||' - PeopleTools XLAT Reference</title></head>');
+ dbms_output.put_line('<base target="_self">');
  dbms_output.put_line('<body>');
 
  dbms_output.put_line('<table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td align="left" valign="top"><h1>'||p_fieldname||'</h1></td>');

@@ -1,8 +1,9 @@
 clear screen
 set serveroutput on echo off verify off feedback off trimspool on head off lines 200 termout off autotrace off
-@@ptrefpkg
+@@sql/ptrefpkg
 host mkdir peopletools
-spool peopletools\_ptindex.html
+set echo off 
+spool index.html
 
 execute ptref.ptindex
 

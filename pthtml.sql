@@ -1,8 +1,9 @@
 REM pthtml.sql
 
 clear screen
-set termout off serveroutput on echo off verify off feedback off trimspool on head off lines 50 autotrace off
-@@ptrefpkg
+set termout off serveroutput on 
+@@sql/ptrefpkg
+set lines 50 echo off verify off feedback off trimspool on head off autotrace off
 host mkdir peopletools
 spool _pthtml.sql
 select 'set termout off echo off verify off feedback off' 
