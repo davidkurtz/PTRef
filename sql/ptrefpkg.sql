@@ -22,6 +22,23 @@ k_space CONSTANT VARCHAR2(30) := '&'||'nbsp;';
 k_amp   CONSTANT VARCHAR2(10) := '&'||'amp';
 k_copy  CONSTANT VARCHAR2(10) := '&'||'copy';
 k_key   CONSTANT VARCHAR2(40) := '<img border="0" src="../jpg/key.gif">';
+k_back  CONSTANT VARCHAR2(60) := '<a href="javascript:javascript:history.go(-1)">back</A>';
+g_toolsrel VARCHAR2(20 CHAR);
+----------------------------------------------------------------------------------------------------
+PROCEDURE init IS
+BEGIN
+ SELECT toolsrel
+ INTO   g_toolsrel
+ FROM   psstatus;
+END init;
+----------------------------------------------------------------------------------------------------
+PROCEDURE footer IS
+BEGIN
+ dbms_output.put_line('<table id="t01"><tr>');
+ dbms_output.put_line('<td>'||k_back||'</td>');
+ dbms_output.put_line('<td style="text-align:right;">PeopleTools '||g_toolsrel||'<br><a target="_blank" href="https://github.com/davidkurtz/PTRef">PTRef<a> generated on '||TO_CHAR(sysdate)||'</td>');
+ dbms_output.put_line('</tr></table>');
+END footer;
 ----------------------------------------------------------------------------------------------------
 FUNCTION ptreclink(p_recname IN VARCHAR) RETURN VARCHAR IS
   l_found INTEGER := 0;
@@ -47,7 +64,12 @@ END ptreclink;
 PROCEDURE tablestyle IS
 BEGIN
  dbms_output.put_line('<style>');
- dbms_output.put_line('table, th, td { border: 1px solid black; border-collapse: collapse; padding: 1px; vertical-align: top;}');
+ 
+ dbms_output.put_line('table, th, td { padding: 1px; border: 1px solid black; border-collapse: collapse;}');
+ dbms_output.put_line('th, td { text-align: left;}');
+ dbms_output.put_line('table#t01 { width:100%; border: 0px;}');
+ dbms_output.put_line('table#t01 th, table#t01 td { padding: 0px; border: 0px;}');
+
  dbms_output.put_line('</style>');
 END tablestyle;
 ----------------------------------------------------------------------------------------------------
@@ -60,7 +82,6 @@ PROCEDURE pthtml
  l_rectype        INTEGER;
  l_descrlong      CLOB;
  l_newline        BOOLEAN;
- l_toolsrel       VARCHAR2(20 CHAR);
 
  l_datatype       VARCHAR2(100);
  l_col_def        VARCHAR2(1000 CHAR);
@@ -69,9 +90,7 @@ PROCEDURE pthtml
 
  l_counter INTEGER;
 BEGIN
- SELECT toolsrel
- INTO   l_toolsrel
- FROM   psstatus;
+ init;
 
  WITH x AS (
    SELECT object_name recname
@@ -89,11 +108,12 @@ BEGIN
  dbms_output.put_line('<html><head>');
  dbms_output.put_line('<title>'||l_recname||' - '||l_recdescr||' - PeopleTools Table Reference</title>');
  dbms_output.put_line('<base target="_self">');
+ tablestyle;
  dbms_output.put_line('</head><body>');
- dbms_output.put_line('<table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td align="left" valign="top"><h1>'||l_recname||'</h1></td>');
- dbms_output.put_line('<td align="right" valign="top"><p align="right"><A HREF="javascript:javascript:history.go(-1)">back</A></td></tr></table>');
- 
 
+ dbms_output.put_line('<table id="t01"><tr><td><h1>'||l_recname||'</h1></td>');
+ dbms_output.put_line('<td align="right" valign="top"><p align="right">'||k_back||'</td></tr></table>');
+ 
  IF l_descrlong IS NOT NULL THEN
   dbms_output.put_line(l_descrlong||'<p>');
  END IF;
@@ -162,7 +182,7 @@ BEGIN
   END IF;
  END IF;
 
- dbms_output.put_line('<table border="1" style="border-style:double; border-width:0; padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 0px" cellspacing="0" cellpadding="1">');
+ dbms_output.put_line('<table>');
 
   dbms_output.put_line('<tr>');
   dbms_output.put_line('<th align="left">PeopleSoft Field Name</th>');
@@ -356,9 +376,6 @@ BEGIN
    l_newline := TRUE;
   END LOOP;
 
-
-
-
   IF NOT l_newline THEN
    dbms_output.put_line(k_space);
   END IF;
@@ -395,26 +412,19 @@ BEGIN
  dbms_output.put_line('</tr>');
  END LOOP;
  dbms_output.put_line('</table>');
- dbms_output.put_line('<table border="0" cellspacing="0" cellpadding="0" width="100%"><tr>');
-
- dbms_output.put_line('<td colspan="2"><p align="right"><font face="Century Gothic"><strong style="font-weight: 400">');
- dbms_output.put_line('<font size="1" face="Century Gothic">PeopleTools '||l_toolsrel||'</font></td></tr><tr>');
-
- dbms_output.put_line('<td><A HREF="javascript:javascript:history.go(-1)">back</A></td>');
- dbms_output.put_line('<td><font face="Century Gothic"><strong style="font-weight: 400">');
- dbms_output.put_line('</td></tr></table>');
-
+ footer;
  dbms_output.put_line('</body>');
 END pthtml;
 ----------------------------------------------------------------------------------------------------
 PROCEDURE ptindex IS
  k_ptdir CONSTANT VARCHAR2(30) := 'peopletools/';
 BEGIN
+ init;
  dbms_output.put_line('<html><head>');
  dbms_output.put_line('<title>PeopleTools Table Reference - Index</title>');
  dbms_output.put_line('<base target="_self">');
  tablestyle;
- dbms_output.put_line('</head><body><h1>PeopleTools Records Reference</h1><table>');
+ dbms_output.put_line('</head><body><h1><a target="_blank" href="https://github.com/davidkurtz/PTRef">PTRef<a>: PeopleTools Records Reference</h1><table>');
  dbms_output.put_line('<tr><th>Tables</th><th>Views</th></tr>');
  FOR i IN (
   SELECT DISTINCT SUBSTR(r.recname,1,CASE WHEN SUBSTR(r.recname,1,2) IN('PS') THEN 3 ELSE 1 END) index_section
@@ -464,20 +474,17 @@ BEGIN
    END LOOP;
    dbms_output.put_line('</tr>');
  END LOOP;
- dbms_output.put_line('</table></body></html>');
+ dbms_output.put_line('</table>');
+ footer;
+ dbms_output.put_line('</body></html>');
+ 
 END ptindex;
 ----------------------------------------------------------------------------------------------------
 PROCEDURE ptxlat
 (p_fieldname IN VARCHAR2) IS
-
- l_toolsrel       VARCHAR2(20 CHAR);
  l_descrlong      CLOB;
 
 BEGIN
- SELECT toolsrel
- INTO   l_toolsrel
- FROM   psstatus;
-
  SELECT NVL(f.descrlong,l2.longname)
  INTO   l_descrlong 
  FROM   psdbfield f
@@ -489,16 +496,17 @@ WHERE  f.fieldname = p_fieldname;
  dbms_output.put_line('<html>');
  dbms_output.put_line('<head><title>'||p_fieldname||' - '||l_descrlong||' - PeopleTools XLAT Reference</title></head>');
  dbms_output.put_line('<base target="_self">');
+ tablestyle;
  dbms_output.put_line('<body>');
 
- dbms_output.put_line('<table border="0" cellspacing="0" cellpadding="0" width="100%"><tr><td align="left" valign="top"><h1>'||p_fieldname||'</h1></td>');
- dbms_output.put_line('<td align="right" valign="top"><p align="right"><A HREF="javascript:javascript:history.go(-1)">back</A></td></tr></table>');
+ dbms_output.put_line('<table id="t01"><h1>'||p_fieldname||'</h1></td>');
+ dbms_output.put_line('<td align="right" valign="top"><p align="right">'||k_back||'</td></tr></table>');
 
  IF l_descrlong IS NOT NULL THEN
   dbms_output.put_line(l_descrlong||'<p>');
  END IF;
 
- dbms_output.put_line('<table border="1" style="border-style:double; border-width:0; padding-left: 0px; padding-right: 0px; padding-top: 0px; padding-bottom: 0px" cellspacing="0" cellpadding="1">');
+ dbms_output.put_line('<table>');
  dbms_output.put_line('<tr>');
  dbms_output.put_line('<th align="left">Translate Value</th>');
  dbms_output.put_line('<th align="left">Short Description</th>');
@@ -524,13 +532,8 @@ WHERE  f.fieldname = p_fieldname;
  END LOOP;
 
 dbms_output.put_line('</table>');
-
-dbms_output.put_line('<table border="0" cellspacing="0" cellpadding="0" width="100%"><tr>');
-dbms_output.put_line('<td colspan="2"><p align="right"><font face="Century Gothic"><strong style="font-weight: 400">');
-dbms_output.put_line('<font size="1" face="Century Gothic">PeopleTools '||l_toolsrel||'</font></td></tr><tr>');
-dbms_output.put_line('<td><A HREF="javascript:javascript:history.go(-1)">back</A></td>');
-dbms_output.put_line('<td><font face="Century Gothic"><strong style="font-weight: 400">');
-dbms_output.put_line('</td></tr></table>');
+ footer;
+ dbms_output.put_line('</body></html>');
 
 END ptxlat;
 

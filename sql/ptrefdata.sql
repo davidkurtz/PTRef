@@ -17,6 +17,9 @@ insert into plan_table(statement_id, object_type, object_name, other_xml) VALUES
 insert into plan_table(statement_id, object_type, object_name, other_xml) VALUES
 ('PTREF','DESCR','PSOBJGROUP','This table defines which objects are members of which security group.  Using the Object security manager, it is possible to control which developers have update and read-only access to which group.');
 
+insert into plan_table(statement_id, object_type, object_name, other_xml) VALUES
+('PTREF','DESCR','PSSQLDEFN','This record is the parent of <a href="pssqltextdefn.html">PSSQLTEXTDEFN<a>. It holds SQL object definitions, and these objects are used widely in PeopleTools. Only rows where SQLTYPE = 2 correspond to USER_VIEWS');
+
 --add subpages for xlat tables with at least 30 translate values
 insert into plan_table (statement_id, object_type, object_name, object_alias, options)
 with x as (
@@ -61,8 +64,10 @@ insert into plan_table (statement_id, object_type, object_name, object_alias, op
 
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','FIELDTYPE','*','',' (from <a href="http://psst0101.wordpress.com/2008/12/03/pspnldefnfieldtype/">PSST0101<a>)');
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','RECNAME_PARENT','*','','. If this comes from a sub-record, this column has the name of the sub-record, otherwise it has the same value as RECNAME.');
+insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','SQLID','*','','. This column has different meanings depending upon value of SQLTYPE<br><li>SQLTYPE = 0: SQL object name<br><li>SQLTYPE = 1: Application Engine Step Identifier<br><li>SQLTYPE = 2: RECNAME<br><li>SQLTYPE = 6: Application Engine XSLT (XML definition)');
 
-PeopleSoft removed this functionality in PT8.15 (due to Oracle Bug #869177 in Oracle 8.1.x), reinstated it in PT8.48, and finally removed it PT8.54.');
+insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','SQLTYPE','*','','<br><li>0=SQL Object referenced from elsewhere<br><li>1=Application Engine Step<br><li>2=SQL View<br><li>5=Queries for DDDAUDIT and SYSAUDIT<br><li>6= Application Engine Step XSLT');
+
 --add links to definition records
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml)
 with x as (

@@ -37,6 +37,6 @@ from dual
 ;
 spool off
 set lines 200
-@_pthtml
-
+@_pthtml.sql
+rem del _pthtml.sql
 set termout on serveroutput on echo on verify on feedback on trimspool on head on 
