@@ -23,6 +23,7 @@ k_amp   CONSTANT VARCHAR2(10) := '&'||'amp';
 k_copy  CONSTANT VARCHAR2(10) := '&'||'copy';
 k_key   CONSTANT VARCHAR2(40) := '<img border="0" src="../jpg/key.gif">';
 k_back  CONSTANT VARCHAR2(60) := '<a href="javascript:javascript:history.go(-1)">back</A>';
+k_msg   CONSTANT VARCHAR2(200) := '(c)David Kurtz 2019, <a target="_blank" href="http://www.go-faster.co.uk">www.go-faster.co.uk</a>';
 g_toolsrel VARCHAR2(20 CHAR);
 ----------------------------------------------------------------------------------------------------
 PROCEDURE init IS
@@ -35,7 +36,8 @@ END init;
 PROCEDURE footer IS
 BEGIN
  dbms_output.put_line('<table id="t01"><tr>');
- dbms_output.put_line('<td>'||k_back||'</td>');
+ dbms_output.put_line('<td style="text-align:left;">'||k_back||'</td>');
+ dbms_output.put_line('<td style="text-align:center;">'||k_msg||'</td>');
  dbms_output.put_line('<td style="text-align:right;">PeopleTools '||g_toolsrel||'<br><a target="_blank" href="https://github.com/davidkurtz/PTRef">PTRef<a> generated on '||TO_CHAR(sysdate)||'</td>');
  dbms_output.put_line('</tr></table>');
 END footer;
@@ -82,7 +84,7 @@ PROCEDURE pthtml
  l_rectype        INTEGER;
  l_descrlong      CLOB;
  l_newline        BOOLEAN;
-
+ 
  l_datatype       VARCHAR2(100);
  l_col_def        VARCHAR2(1000 CHAR);
 
@@ -91,7 +93,7 @@ PROCEDURE pthtml
  l_counter INTEGER;
 BEGIN
  init;
-
+ 
  WITH x AS (
    SELECT object_name recname
    ,      other_xml descrlong
@@ -99,8 +101,8 @@ BEGIN
    WHERE  statement_id = 'PTREF'
    AND    object_type = 'DESCR'
  )
- SELECT r.recname, r.recdescr, r.rellangrecname, r.parentrecname, r.descrlong||' '||x.descrlong
- INTO   l_recname, l_recdescr, l_rellangrecname, l_parentrecname, l_descrlong
+ SELECT r.recname, r.rectype, r.recdescr, r.rellangrecname, r.parentrecname, r.descrlong||' '||x.descrlong
+ INTO   l_recname, l_rectype, l_recdescr, l_rellangrecname, l_parentrecname, l_descrlong
  FROM   psrecdefn r
 	LEFT OUTER JOIN x ON x.recname = r.recname
  WHERE  r.recname = UPPER(p_recname);
@@ -111,13 +113,48 @@ BEGIN
  tablestyle;
  dbms_output.put_line('</head><body>');
 
- dbms_output.put_line('<table id="t01"><tr><td><h1>'||l_recname||'</h1></td>');
- dbms_output.put_line('<td align="right" valign="top"><p align="right">'||k_back||'</td></tr></table>');
+ dbms_output.put_line('<table id="t01"><tr><th><h1>'||l_recname||'</h1></th>');
+ dbms_output.put_line('<th style="text-align:right;">'||k_back||'</th></tr>');
+ dbms_output.put_line('</table>');
  
  IF l_descrlong IS NOT NULL THEN
-  dbms_output.put_line(l_descrlong||'<p>');
+  dbms_output.put_line(l_descrlong||'<br>');
  END IF;
 
+IF l_rectype = '1' THEN
+ dbms_output.put_line('<table><tr><td>');
+ FOR j IN(
+  SELECT *
+  FROM   pssqltextdefn t
+  WHERE  sqltype = '2'
+  AND    sqlid = p_recname
+  AND market = 'GBL' --always for views
+  AND dbtype = (
+    SELECT MAX(dbtype)
+    FROM   pssqltextdefn t1
+    where  t1.sqlid = t.sqlid
+    AND    t1.sqltype = t.sqltype
+    AND    t1.market = t.market
+    AND    t1.dbtype IN(' ','2')
+    )
+  AND effdt = (
+    SELECT MAX(effdt)
+    FROM   pssqltextdefn t2
+    where  t2.sqlid = t.sqlid
+    AND    t2.sqltype = t.sqltype
+    AND    t2.market = t.market
+    AND    t2.dbtype = t2.dbtype
+    AND    t2.effdt <= SYSDATE
+  )
+  ORDER BY seqnum
+ ) LOOP
+   dbms_output.put_line(j.sqltext);
+ END LOOP;
+ dbms_output.put_line('</td><tr>');
+ END IF;
+ dbms_output.put_line('</table><p>');
+ 
+ 
  IF l_rellangrecname > ' ' THEN
   dbms_output.put_line('<li>Related language record: '||ptreclink(l_rellangrecname)||'</li><p>');
  ELSE 
@@ -182,11 +219,11 @@ BEGIN
   END IF;
  END IF;
 
- dbms_output.put_line('<table>');
 
-  dbms_output.put_line('<tr>');
-  dbms_output.put_line('<th align="left">PeopleSoft Field Name</th>');
-  dbms_output.put_line('<th align="left">Field Type</th>');
+ dbms_output.put_line('<table>');
+ dbms_output.put_line('<tr>');
+ dbms_output.put_line('<th align="left">PeopleSoft Field Name</th>');
+ dbms_output.put_line('<th align="left">Field Type</th>');
  dbms_output.put_line('<th align="left">Column Type</th>');
  dbms_output.put_line('<th align="left">Description</th>');
  dbms_output.put_line('</tr>');
@@ -341,7 +378,7 @@ BEGIN
   dbms_output.put_line(l_col_def);
   l_newline := TRUE;
  END IF;
-
+ 
  IF i.object_type = 'XLAT' AND i.options IS NOT NULL THEN
   dbms_output.put_line('<a href="'||i.options||'">translate values</a>');
  ELSE
@@ -407,7 +444,7 @@ BEGIN
    END IF;
   END IF;
  END IF;
-
+ 
  dbms_output.put_line('</td>');
  dbms_output.put_line('</tr>');
  END LOOP;
@@ -431,9 +468,9 @@ BEGIN
   FROM   psrecdefn r
 --,	     psobjgroup o
   where  (r.objectownerid = 'PPT' OR r.recname = r.sqltablename)
-  and    r.rectype IN(0,1)
---and    o.objgroupid = 'PEOPLETOOLS'
---and    o.entname = r.recname
+  AND    r.rectype IN(0,1)
+--AND    o.objgroupid = 'PEOPLETOOLS'
+--AND    o.entname = r.recname
   ORDER BY 1
  ) LOOP
 
@@ -444,9 +481,9 @@ BEGIN
     FROM   psrecdefn r
 --,	       psobjgroup o
     where  (r.objectownerid = 'PPT' OR r.recname = r.sqltablename)
-    and    r.rectype IN(0,1)
---  and    o.objgroupid = 'PEOPLETOOLS'
---  and    o.entname = r.recname
+    AND    r.rectype IN(0,1)
+--  AND    o.objgroupid = 'PEOPLETOOLS'
+--  AND    o.entname = r.recname
     ORDER BY 1
    ) LOOP
      IF i.index_section = j.index_section THEN  
@@ -464,8 +501,8 @@ BEGIN
        SELECT DISTINCT r.rectype, r.recname, r.recdescr
        FROM   psrecdefn r
        where  (r.objectownerid = 'PPT' OR r.recname = r.sqltablename)
-       and    SUBSTR(r.recname,1,CASE WHEN SUBSTR(r.recname,1,2) IN('PS') THEN 3 ELSE 1 END) = i.index_section
-       and    r.rectype = j
+       AND    SUBSTR(r.recname,1,CASE WHEN SUBSTR(r.recname,1,2) IN('PS') THEN 3 ELSE 1 END) = i.index_section
+       AND    r.rectype = j
        ORDER BY r.recname
     ) LOOP
       dbms_output.put_line('<a name="'||k.recname||'" href="'||k_ptdir||LOWER(k.recname)||'.html">'||k.recname||'</a> - '||k.recdescr||'<br>');
@@ -499,11 +536,12 @@ WHERE  f.fieldname = p_fieldname;
  tablestyle;
  dbms_output.put_line('<body>');
 
- dbms_output.put_line('<table id="t01"><h1>'||p_fieldname||'</h1></td>');
- dbms_output.put_line('<td align="right" valign="top"><p align="right">'||k_back||'</td></tr></table>');
+ dbms_output.put_line('<table id="t01"><tr><th><h1>'||p_fieldname||'</h1></th>');
+ dbms_output.put_line('<th style="text-align:right;">'||k_back||'</th></tr>');
+ dbms_output.put_line('</table>');
 
  IF l_descrlong IS NOT NULL THEN
-  dbms_output.put_line(l_descrlong||'<p>');
+  dbms_output.put_line(l_descrlong||'<br>');
  END IF;
 
  dbms_output.put_line('<table>');
@@ -517,8 +555,8 @@ WHERE  f.fieldname = p_fieldname;
    select i.*
    from   psxlatitem i
    where  i.fieldname = p_fieldname
-   and    i.eff_status = 'A'
-   and    i.effdt = (SELECT MAX(i1.effdt)
+   AND    i.eff_status = 'A'
+   AND    i.effdt = (SELECT MAX(i1.effdt)
                      FROM   psxlatitem i1
                      WHERE  i1.fieldname = p_fieldname
                      AND    i1.fieldvalue = i.fieldvalue)
@@ -531,7 +569,7 @@ WHERE  f.fieldname = p_fieldname;
   dbms_output.put_line('</tr>');
  END LOOP;
 
-dbms_output.put_line('</table>');
+ dbms_output.put_line('</table>');
  footer;
  dbms_output.put_line('</body></html>');
 
