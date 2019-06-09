@@ -3,7 +3,7 @@ set serveroutput on echo off trimspool on head off lines 200 termout off autotra
 @@sql/ptrefpkg
 host mkdir peopletools
 set echo off verify off feedback off 
-spool index.html
+spool peopletools/_ptindex.htm
 
 execute ptref.ptindex
 

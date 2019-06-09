@@ -12,9 +12,9 @@ Instructions:
 
 1. Unzip the the file from github and navigate to the root directory.
 2. Open SQL*Plus and connect as SYSADM
-3. Run ptindex.html to generate the index page (this will also install package and load addition data)
+3. Run ptindex.sql to generate the index page _ptindex.htm (this will also install package and load addition data)
 4. Run pthtml.sql to generate the package for each record
-5. The index.html page will be generated in the current directory.  The pages for each record will be in the PeopleTools directory.  
-6. Open the reference with you  browser starting with index.html
+5. The index.htm page will be generated in the PeopleTools directory.  The pages for each record will be in the PeopleTools directory.  
+6. Open the reference with you  browser starting with index.htm
 
 David Kurtz

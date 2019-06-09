@@ -11,7 +11,7 @@ from dual
 ;
 
 select 	DISTINCT 
-	'spool "peopletools\'||LOWER(recname)||'.html"'
+	'spool "peopletools\'||LOWER(recname)||'.htm"'
 ,	'execute ptref.pthtml('''||r.recname||''');'
   FROM   psrecdefn r
 --,	     psobjgroup o

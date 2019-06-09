@@ -12,13 +12,13 @@ VALUES
 ('PTREF','DESCR','PSVERSION','This table holds a version number for each type of cached object defined in the PeopleTools tables.  Each time an object is created, updated or deleted, both the global version number (OBJECTTYPENAME=<a href="../static/objecttypename.html#SYS">SYS</a>) and the version number that corresponds to the type of object are incremented.  The new object version number is written to the updated object.  However, if the object is deleted, a row will be written to the deleted object table (where the version number is usually a part of the unique key).  The version numbers are stored in the PeopleTools caches, and hence PeopleTools programs can determine whether the object definitions in the cache are up to date by comparing the version numbers.');
 
 insert into plan_table(statement_id, object_type, object_name, other_xml) VALUES
-('PTREF','DESCR','PSLOCK','This table is very similar to <a href="psversion.html">PSVERSION<a>, but does not have the same OBJECTTYPE names.');
+('PTREF','DESCR','PSLOCK','This table is very similar to <a href="psversion.htm">PSVERSION<a>, but does not have the same OBJECTTYPE names.');
 
 insert into plan_table(statement_id, object_type, object_name, other_xml) VALUES
 ('PTREF','DESCR','PSOBJGROUP','This table defines which objects are members of which security group.  Using the Object security manager, it is possible to control which developers have update and read-only access to which group.');
 
 insert into plan_table(statement_id, object_type, object_name, other_xml) VALUES
-('PTREF','DESCR','PSSQLDEFN','This record is the parent of <a href="pssqltextdefn.html">PSSQLTEXTDEFN<a>. It holds SQL object definitions, and these objects are used widely in PeopleTools. Only rows where SQLTYPE = 2 correspond to USER_VIEWS');
+('PTREF','DESCR','PSSQLDEFN','This record is the parent of <a href="pssqltextdefn.htm">PSSQLTEXTDEFN<a>. It holds SQL object definitions, and these objects are used widely in PeopleTools. Only rows where SQLTYPE = 2 correspond to USER_VIEWS');
 
 --add subpages for xlat tables with at least 30 translate values
 insert into plan_table (statement_id, object_type, object_name, object_alias, options)
@@ -35,22 +35,22 @@ select DISTINCT fieldname, num_values
 from x
 where num_values >= 30
 )
-SELECT 'PTREF','XLAT',y.fieldname,'*',LOWER(y.fieldname)||'.html'
+SELECT 'PTREF','XLAT',y.fieldname,'*',LOWER(y.fieldname)||'.htm'
 FROM y
 /
 
 
 
-insert into plan_table (statement_id, object_type, object_name, object_alias,options, other_xml) VALUES ('PTREF','FIELD','USEEDIT','*','../static/useedit.html'
-                       ,'- <a href="../static/useedit.html">USEEDIT reference</a>');
-insert into plan_table (statement_id, object_type, object_name, object_alias,options, other_xml) VALUES ('PTREF','FIELD','OBJECTTYPENAME','*','../static/objecttypename.html'
-                       ,'- <a href="../static/objecttypename.html">Version/Table reference</a>');
-insert into plan_table (statement_id, object_type, object_name, object_alias,options, other_xml) VALUES ('PTREF','FIELD','VERSION','*','../static/objecttypename.html'
-                       ,'. Internal PeopleTools version for controlling caching of object. - <a href="../static/objecttypename.html">Version/Table reference</a>');
+insert into plan_table (statement_id, object_type, object_name, object_alias,options, other_xml) VALUES ('PTREF','FIELD','USEEDIT','*','../static/useedit.htm'
+                       ,'- <a href="../static/useedit.htm">USEEDIT reference</a>');
+insert into plan_table (statement_id, object_type, object_name, object_alias,options, other_xml) VALUES ('PTREF','FIELD','OBJECTTYPENAME','*','../static/objecttypename.htm'
+                       ,'- <a href="../static/objecttypename.htm">Version/Table reference</a>');
+insert into plan_table (statement_id, object_type, object_name, object_alias,options, other_xml) VALUES ('PTREF','FIELD','VERSION','*','../static/objecttypename.htm'
+                       ,'. Internal PeopleTools version for controlling caching of object. - <a href="../static/objecttypename.htm">Version/Table reference</a>');
 insert into plan_table (statement_id, object_type, object_name, object_alias,other_xml) VALUES ('PTREF','FIELD','FORMATLENGTH','*',' in characters.  Except that Images and Attachments in Kb.');
-insert into plan_table (statement_id, object_type, object_name, object_alias,other_xml) VALUES ('PTREF','FIELD','IMAGE_FMT','PSDBFIELD','Only set for <a href="psdbfield.html#FIELDTYPE">FIELDTYPE</a> of Images and Attachments.');
+insert into plan_table (statement_id, object_type, object_name, object_alias,other_xml) VALUES ('PTREF','FIELD','IMAGE_FMT','PSDBFIELD','Only set for <a href="psdbfield.htm#FIELDTYPE">FIELDTYPE</a> of Images and Attachments.');
 
-insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','DISPFMTNAME','-PSFMTITEM','psfmtitem.html',' (see <a href="psfmtitem.html">PSFMTITEM</a>).');
+insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','DISPFMTNAME','-PSFMTITEM','psfmtitem.htm',' (see <a href="psfmtitem.htm">PSFMTITEM</a>).');
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','ASCDESC','PSKEYDEFN','','<li>1 = Ascending order<br><li>0 = Descending order<br>PeopleSoft removed decending indexes in PT8.54 (due to Oracle Bug #869177 on Oracle 8i), reintroduced them in PT8.48, and finally removed them again in PT8.54.');
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','RECUSE','PSRECDEFN','','. Audit Option bit values');
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','AUXFLAGMASK','PSRECDEFN','',' bit values');
@@ -96,8 +96,8 @@ select x.*
 , row_number() over (partition by fieldname order by pref, recname) seq
 from x
 )
-select 'PTREF','FIELD',fieldname,'-'||recname,lower(recname)||'.html'
-                         ,' (see <a href="'||lower(recname)||'.html">'||recname||'</a>).'
+select 'PTREF','FIELD',fieldname,'-'||recname,lower(recname)||'.htm'
+                         ,' (see <a href="'||lower(recname)||'.htm">'||recname||'</a>).'
 from y where seq = 1
 /
 

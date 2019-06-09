@@ -18,12 +18,14 @@ END ptref;
 ----------------------------------------------------------------------------------------------------
 CREATE OR REPLACE PACKAGE BODY ptref AS
 ----------------------------------------------------------------------------------------------------
-k_space CONSTANT VARCHAR2(30) := '&'||'nbsp;';
-k_amp   CONSTANT VARCHAR2(10) := '&'||'amp';
-k_copy  CONSTANT VARCHAR2(10) := '&'||'copy';
-k_key   CONSTANT VARCHAR2(40) := '<img border="0" src="../jpg/key.gif">';
-k_back  CONSTANT VARCHAR2(60) := '<a href="javascript:javascript:history.go(-1)">back</A>';
-k_msg   CONSTANT VARCHAR2(200) := '(c)David Kurtz 2019, <a target="_blank" href="http://www.go-faster.co.uk">www.go-faster.co.uk</a>';
+k_amp    CONSTANT VARCHAR2(10) := '&'||'amp';
+k_back   CONSTANT VARCHAR2(60) := '<a href="javascript:javascript:history.go(-1)">back</A>';
+k_copy   CONSTANT VARCHAR2(10) := '&'||'copy';
+k_key    CONSTANT VARCHAR2(40) := '<img border="0" src="../static/key.gif">';
+k_msg    CONSTANT VARCHAR2(200) := '(c)David Kurtz 2019, <a target="_blank" href="http://www.go-faster.co.uk">www.go-faster.co.uk</a>';
+k_ptdir  CONSTANT VARCHAR2(30) := ''; --location of generated files relative to index page
+k_space  CONSTANT VARCHAR2(30) := '&'||'nbsp;';
+k_suffix CONSTANT VARCHAR2(10) := '.htm';
 g_toolsrel VARCHAR2(20 CHAR);
 ----------------------------------------------------------------------------------------------------
 PROCEDURE init IS
@@ -56,7 +58,7 @@ BEGIN
    AND    r.rellangrecname = p_recname;
 
   IF l_found = 1 THEN
-    l_html := '<a href="'||LOWER(p_recname)||'.html">'||p_recname||'</a>';
+    l_html := '<a href="'||LOWER(p_recname)||k_suffix||'">'||p_recname||'</a>';
   ELSE
     l_html := p_recname;
   END IF;
@@ -115,6 +117,9 @@ BEGIN
 
  dbms_output.put_line('<table id="t01"><tr><th><h1>'||l_recname||'</h1></th>');
  dbms_output.put_line('<th style="text-align:right;">'||k_back||'</th></tr>');
+ IF l_recdescr != ' ' THEN
+   dbms_output.put_line('<tr><td><h3>'||l_recdescr||'</h3></td></tr>');
+ END IF;
  dbms_output.put_line('</table>');
  
  IF l_descrlong IS NOT NULL THEN
@@ -174,7 +179,7 @@ IF l_rectype = '1' THEN
     l_counter := 1;
    END IF;
    IF j.rectype IN(0,1) THEN
-    dbms_output.put_line(' <a href="'||j.recname||'.html">'||j.recname||'</a>');  
+    dbms_output.put_line(' <a href="'||j.recname||k_suffix||'">'||j.recname||'</a>');  
    ELSE
     dbms_output.put_line(' '||j.recname);  
    END IF;
@@ -188,7 +193,7 @@ IF l_rectype = '1' THEN
   SELECT rectype INTO l_rectype FROM psrecdefn WHERE recname = l_parentrecname;
   IF l_rectype = 0 THEN
    dbms_output.put_line('<li>Parent record: <a href="'
-	||LOWER(l_parentrecname)||'.html">'||l_parentrecname||'</a></li><p>');
+	||LOWER(l_parentrecname)||k_suffix||'">'||l_parentrecname||'</a></li><p>');
   ELSE
    dbms_output.put_line('<li>Parent record: '||l_parentrecname||'</li><p>');
   END IF;
@@ -209,7 +214,7 @@ IF l_rectype = '1' THEN
     l_counter := 1;
    END IF;
    IF j.rectype = 0 THEN
-    dbms_output.put_line(' <a href="'||j.recname||'.html">'||j.recname||'</a>');  
+    dbms_output.put_line(' <a href="'||j.recname||k_suffix||'">'||j.recname||'</a>');  
    ELSE
     dbms_output.put_line(' '||j.recname);  
    END IF;
@@ -432,10 +437,10 @@ IF l_rectype = '1' THEN
   dbms_output.put_line('<p>Prompt Table:');
   IF i.erectype IN(0,1) AND i.pt = 1 THEN 
    dbms_output.put_line('<a href="'
-	||LOWER(i.edittable)||'.html">'||i.edittable||'</a>');
+	||LOWER(i.edittable)||k_suffix||'">'||i.edittable||'</a>');
    IF i.setcntrlfld > ' ' THEN
     dbms_output.put_line('<br>Set Control Field: <a href="'
-	||LOWER(i.edittable)||'.html#'||i.setcntrlfld||'">'||i.setcntrlfld||'</a>');
+	||LOWER(i.edittable)||k_suffix||'#'||i.setcntrlfld||'">'||i.setcntrlfld||'</a>');
    END IF;
   ELSE
    dbms_output.put_line(i.edittable);
@@ -454,7 +459,6 @@ IF l_rectype = '1' THEN
 END pthtml;
 ----------------------------------------------------------------------------------------------------
 PROCEDURE ptindex IS
- k_ptdir CONSTANT VARCHAR2(30) := 'peopletools/';
 BEGIN
  init;
  dbms_output.put_line('<html><head>');
@@ -505,7 +509,7 @@ BEGIN
        AND    r.rectype = j
        ORDER BY r.recname
     ) LOOP
-      dbms_output.put_line('<a name="'||k.recname||'" href="'||k_ptdir||LOWER(k.recname)||'.html">'||k.recname||'</a> - '||k.recdescr||'<br>');
+      dbms_output.put_line('<a name="'||k.recname||'" href="'||k_ptdir||LOWER(k.recname)||k_suffix||'">'||k.recname||'</a> - '||k.recdescr||'<br>');
     END LOOP;
     dbms_output.put_line('</td>');
    END LOOP;
