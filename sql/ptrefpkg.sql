@@ -19,7 +19,7 @@ END ptref;
 CREATE OR REPLACE PACKAGE BODY ptref AS
 ----------------------------------------------------------------------------------------------------
 k_amp    CONSTANT VARCHAR2(10) := '&'||'amp';
-k_back   CONSTANT VARCHAR2(60) := '<a href="javascript:javascript:history.go(-1)">back</A>';
+k_back   CONSTANT VARCHAR2(100) := '<a href="_ptindex.htm">index</a> <a href="javascript:javascript:history.go(-1)">back</A>';
 k_copy   CONSTANT VARCHAR2(10) := '&'||'copy';
 k_key    CONSTANT VARCHAR2(40) := '<img border="0" src="../static/key.gif">';
 k_msg    CONSTANT VARCHAR2(200) := '(c)David Kurtz 2019, <a target="_blank" href="http://www.go-faster.co.uk">www.go-faster.co.uk</a>';
