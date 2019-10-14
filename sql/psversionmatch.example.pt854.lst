@@ -1,0 +1,969 @@
+SQL> 
+SQL> select * from psversion
+  2  union
+  3  select * from pslock
+  4  order by 1
+  5  /
+
+OBJECTTY    VERSION
+-------- ----------
+ACM               1
+ADSM              1
+AEM               4
+AES               3
+APM               2
+ARCOM             1
+ARCTM             1
+ATM               1
+BCM               7
+BMM               1
+BPM               1
+CBCNM             1
+CBDIM             1
+CBOTM             1
+CBTPM             1
+CDM               1
+CERTM             1
+CHDM              2
+CLM              23
+CPQDM             1
+CQDM              1
+CRM             583
+DIAGM             1
+DLOM              1
+DOCPC             1
+DSCMA           357
+DTPLM             1
+FCATM             1
+FDFM            103
+FDM               1
+FDTM              1
+FILEM             1
+FLDM              1
+FLM               1
+FRM               1
+GTM               3
+GTM               5
+HPM               1
+IDM               1
+INTGM             1
+IOM               1
+JPUP              1
+KEYM              1
+LSDDM             1
+LSDM              1
+MAPM              1
+MDM               3
+MNDM             11
+MNDM             12
+MPM               1
+MSDM              9
+NTM               2
+OPRHM             1
+OPRM              1
+OPRVM             1
+PBM               1
+PCM          109243
+PDM               3
+PGM               2
+PJM              37
+PPC               8
+PPC               9
+PRDM              2
+PRSM           1004
+PRUF              5
+PRUH              1
+PSC               1
+PSCHM             1
+PSH               1
+PSR               1
+QAL               1
+QDM               1
+QUEM              1
+RCMTM             1
+RCSCM             1
+RCSDM             1
+RDM              21
+REST              1
+RLM               1
+ROLM              1
+ROM               1
+RSM               2
+RSTM              2
+RTDM           1742
+SATRM             1
+SCATM             1
+SCMA              1
+SCNFM             1
+SCTXM             2
+SDEFM             1
+SDM               1
+SPTM              1
+SRM               4
+SRVM              1
+SSM               1
+STM               1
+
+OBJECTTY    VERSION
+-------- ----------
+SUDM              1
+SYS              18
+SYS          113031
+TAM               1
+TBM               1
+TDM               1
+THM               1
+TSM               1
+TSTCM             1
+TSTM              1
+TYC               1
+UPM               2
+UPM            2473
+VAM               1
+WSCPH             1
+WSDL              1
+WSPLT             1
+WSPRD             1
+XPDSM             1
+XRRDM             1
+XTM               2
+XTRDM             1
+
+118 rows selected.
+
+Elapsed: 00:00:00.39
+SQL> 
+SQL> rollback;
+
+Rollback complete.
+
+Elapsed: 00:00:00.00
+SQL> delete from plan_table where statement_id = 'PSVERSION';
+
+0 rows deleted.
+
+Elapsed: 00:00:00.00
+SQL> commit;
+
+Commit complete.
+
+Elapsed: 00:00:00.00
+SQL> 
+SQL> set serveroutput on
+SQL> DECLARE
+  2    l_sql CLOB;
+  3    l_max INTEGER;
+  4    l_cnt INTEGER;
+  5  BEGIN
+  6    FOR i IN (
+  7  	 select t.table_name, r.recname, r.recdescr, r.descrlong
+  8  	 from dba_tab_columns c
+  9  	 , dba_tables t
+ 10  	 , sysadm.psrecdefn r
+ 11  	 where c.column_name = 'VERSION'
+ 12  	 and c.owner = 'SYSADM'
+ 13  	 and t.owner = c.owner
+ 14  	 and t.table_name = c.table_name
+ 15  	 and t.table_name = DECODE(r.sqltablename,' ','PS_'||r.recname,r.sqltablename)
+ 16  --  and r.recname = r.sqltablename
+ 17  	 and not r.recname LIKE 'PS%DEL'
+ 18  	 order by 1
+ 19    ) LOOP
+ 20  	 l_sql := 'SELECT MAX(version), count(*) FROM '||i.table_name;
+ 21  	 dbms_output.put_line(l_sql);
+ 22  	 EXECUTE IMMEDIATE l_sql INTO l_max, l_cnt;
+ 23  	 dbms_output.put_line('max='||l_max||', cnt='||l_cnt);
+ 24  	 IF l_cnt > 0 THEN
+ 25  	   INSERT INTO plan_table
+ 26  	   (statement_id, object_name, object_instance, cost, remarks, other)
+ 27  	   VALUES ('PSVERSION', i.table_name, l_max, l_cnt, i.recdescr, i.descrlong);
+ 28  	 END IF;
+ 29    END LOOP;
+ 30  END;
+ 31  /
+SELECT MAX(version), count(*) FROM PSACCESSPRFL
+max=23, cnt=1
+SELECT MAX(version), count(*) FROM PSACEMDLDEFN
+max=1, cnt=1
+SELECT MAX(version), count(*) FROM PSACTIVITYDEFN
+max=1, cnt=510
+SELECT MAX(version), count(*) FROM PSADSDEFN
+max=1, cnt=192
+SELECT MAX(version), count(*) FROM PSAEAPPLDEFN
+max=1, cnt=1699
+SELECT MAX(version), count(*) FROM PSAESECTDEFN
+max=1, cnt=8414
+SELECT MAX(version), count(*) FROM PSARCHOBJDEFN
+max=1, cnt=64
+SELECT MAX(version), count(*) FROM PSARCHTEMPLATE
+max=1, cnt=53
+SELECT MAX(version), count(*) FROM PSBCDEFN
+max=7, cnt=388
+SELECT MAX(version), count(*) FROM PSBUSPROCDEFN
+max=1, cnt=124
+SELECT MAX(version), count(*) FROM PSCERTDEFN
+max=1, cnt=20
+SELECT MAX(version), count(*) FROM PSCERTEXTSTORE
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSCHNLDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSCLASSDEFN
+max=13, cnt=878
+SELECT MAX(version), count(*) FROM PSCOLORDEFN
+max=1, cnt=9
+SELECT MAX(version), count(*) FROM PSCONQRSDEFN
+max=1, cnt=30
+SELECT MAX(version), count(*) FROM PSCONTDEFN
+max=1, cnt=6025
+SELECT MAX(version), count(*) FROM PSCPQDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSCUBCONNECTID
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSCUBDIMENSION
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSCUBOUTLINE
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSCUBTEMPL
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSDBFIELD
+max=1, cnt=72502
+SELECT MAX(version), count(*) FROM PSDEFNCACHE
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSDIAGREG
+max=1, cnt=50
+SELECT MAX(version), count(*) FROM PSDOCLODEFN
+max=1, cnt=8
+SELECT MAX(version), count(*) FROM PSDOCPCDFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSDOCSCMADFN
+max=357, cnt=89
+SELECT MAX(version), count(*) FROM PSDOCTPLDEFN
+max=1, cnt=4
+SELECT MAX(version), count(*) FROM PSFILEDEFN
+max=1, cnt=890
+SELECT MAX(version), count(*) FROM PSFILEREDEFN
+max=1, cnt=9220
+SELECT MAX(version), count(*) FROM PSFILE_ATTDET
+max=1, cnt=1
+SELECT MAX(version), count(*) FROM PSFLDDEFN
+max=1, cnt=454
+SELECT MAX(version), count(*) FROM PSFMTDEFN
+max=1, cnt=30
+SELECT MAX(version), count(*) FROM PSFP_CATEGORY
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSFP_DATATYPE
+max=1, cnt=5
+SELECT MAX(version), count(*) FROM PSFP_FEED
+max=103, cnt=36
+SELECT MAX(version), count(*) FROM PSGATEWAY
+max=5, cnt=1
+SELECT MAX(version), count(*) FROM PSHOLIDAYDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSIBGROUPDEFN
+max=1, cnt=100
+SELECT MAX(version), count(*) FROM PSIBMSGFILE_ATT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSIBRESTDFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSIBRTNGDEFN
+max=1742, cnt=1741
+SELECT MAX(version), count(*) FROM PSIBSCHEMAS_ATT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSIBSCMADFN
+max=1, cnt=3490
+SELECT MAX(version), count(*) FROM PSIBWSDLDFN
+max=1, cnt=17
+SELECT MAX(version), count(*) FROM PSIBXML_ATT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSIMPDEFN
+max=1, cnt=1
+SELECT MAX(version), count(*) FROM PSIODEFN
+max=1, cnt=51
+SELECT MAX(version), count(*) FROM PSJPUPDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSKEYDB
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSLOCK
+max=109243, cnt=112
+SELECT MAX(version), count(*) FROM PSLSDEFN
+max=1, cnt=91
+SELECT MAX(version), count(*) FROM PSLSDEPDEFN
+max=1, cnt=17
+SELECT MAX(version), count(*) FROM PSMAPMDEFN
+max=1, cnt=3
+SELECT MAX(version), count(*) FROM PSMENUDEFN
+max=1, cnt=417
+SELECT MAX(version), count(*) FROM PSMPDEFN
+max=1, cnt=2
+SELECT MAX(version), count(*) FROM PSMSGDEFN
+max=1, cnt=4037
+SELECT MAX(version), count(*) FROM PSMSGNODEDEFN
+max=11, cnt=59
+SELECT MAX(version), count(*) FROM PSMSGSETDEFN
+max=1, cnt=671
+SELECT MAX(version), count(*) FROM PSNODETRX
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSOBJCACHE
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSOBJGROUP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSOPA_ATTACH_DT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSOPERATION
+max=1, cnt=1907
+SELECT MAX(version), count(*) FROM PSOPRDEFN
+max=2473, cnt=234
+SELECT MAX(version), count(*) FROM PSOPRHDLR
+max=1, cnt=1718
+SELECT MAX(version), count(*) FROM PSOPRVERDFN
+max=1, cnt=2022
+SELECT MAX(version), count(*) FROM PSOPTPRBTYPE
+max=1, cnt=1
+SELECT MAX(version), count(*) FROM PSOPTSYNC
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSPACKAGEDEFN
+max=2, cnt=3180
+SELECT MAX(version), count(*) FROM PSPCMPROG
+max=109239, cnt=87276
+SELECT MAX(version), count(*) FROM PSPERMLIST_RMT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSPGCORE
+max=0, cnt=69
+SELECT MAX(version), count(*) FROM PSPGDTYPE
+max=1, cnt=2
+SELECT MAX(version), count(*) FROM PSPHYSSCHDEFN
+max=1, cnt=261
+SELECT MAX(version), count(*) FROM PSPNLDEFN
+max=2, cnt=12869
+SELECT MAX(version), count(*) FROM PSPNLGRPDEFN
+max=1, cnt=7011
+SELECT MAX(version), count(*) FROM PSPRCSRUNCNTL
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSPRDMDEFN
+max=1, cnt=8
+SELECT MAX(version), count(*) FROM PSPROJECTDEFN
+max=1, cnt=606
+SELECT MAX(version), count(*) FROM PSPRSMDEFN
+max=1004, cnt=15192
+SELECT MAX(version), count(*) FROM PSPRUFDEFN
+max=5, cnt=3
+SELECT MAX(version), count(*) FROM PSPRUHDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSPTCSSRVCONF
+max=1, cnt=6335
+SELECT MAX(version), count(*) FROM PSPTCSSRVDEFN
+max=1, cnt=369
+SELECT MAX(version), count(*) FROM PSPTCS_MENU_TBL
+max=1, cnt=280
+SELECT MAX(version), count(*) FROM PSPTCS_SRVCFG
+max=1, cnt=142
+SELECT MAX(version), count(*) FROM PSPTFILE_PRCS
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSPTSF_ATTRS
+max=1, cnt=384
+SELECT MAX(version), count(*) FROM PSPTSF_SD
+max=1, cnt=32
+SELECT MAX(version), count(*) FROM PSPTSF_SRCCAT
+max=1, cnt=37
+SELECT MAX(version), count(*) FROM PSPTTSTCASE
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSPTTSTDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSPTTSTDEFNTREE
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSPTUS_CTX
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSQRYACCLSTRECS
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSQRYDEFN
+max=1, cnt=1931
+SELECT MAX(version), count(*) FROM PSQUEUEDEFN
+max=1, cnt=178
+SELECT MAX(version), count(*) FROM PSRECDEFN
+max=21, cnt=40731
+SELECT MAX(version), count(*) FROM PSRELATIONSHIP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSRELATIONTRX
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSROLEDEFN
+max=1, cnt=531
+SELECT MAX(version), count(*) FROM PSROLEDEFN_RMT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSSCDICTDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSSERVICE
+max=1, cnt=920
+SELECT MAX(version), count(*) FROM PSSPCDDLPARM
+max=1, cnt=78
+SELECT MAX(version), count(*) FROM PSSPTDEFN
+max=1, cnt=1
+SELECT MAX(version), count(*) FROM PSSQLDEFN
+max=1, cnt=50318
+SELECT MAX(version), count(*) FROM PSSTATUS
+max=157102, cnt=1
+SELECT MAX(version), count(*) FROM PSSTYLEDEFN
+max=1, cnt=23
+SELECT MAX(version), count(*) FROM PSSTYLSHEETDEFN
+max=1, cnt=218
+SELECT MAX(version), count(*) FROM PSSUBDEFN
+max=1, cnt=232
+SELECT MAX(version), count(*) FROM PSTOOLBARDEFN
+max=1, cnt=1
+SELECT MAX(version), count(*) FROM PSTREEBRANCH
+max=1, cnt=3
+SELECT MAX(version), count(*) FROM PSTREEDEFN
+max=1, cnt=271
+SELECT MAX(version), count(*) FROM PSTREESELCTL
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSTREESTRCT
+max=1, cnt=20
+SELECT MAX(version), count(*) FROM PSTYPECODEDEFN
+max=1, cnt=334
+SELECT MAX(version), count(*) FROM PSURLDEFN
+max=1, cnt=196
+SELECT MAX(version), count(*) FROM PSUSEROPTNDEFN
+max=0, cnt=55
+SELECT MAX(version), count(*) FROM PSVERSION
+max=113031, cnt=113
+SELECT MAX(version), count(*) FROM PSWEBPROFILE
+max=0, cnt=7
+SELECT MAX(version), count(*) FROM PSWSDLFILE_ATT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSWSRPCPHDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSWSRPPLTDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSWSRPPRDDEFN
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PSXLATDEFN
+max=2, cnt=8605
+SELECT MAX(version), count(*) FROM PSXPDATASRC
+max=1, cnt=414
+SELECT MAX(version), count(*) FROM PSXPRPTDEFN
+max=1, cnt=688
+SELECT MAX(version), count(*) FROM PSXPSCHEMAFLMN
+max=1, cnt=252
+SELECT MAX(version), count(*) FROM PSXPSMPLDTMN
+max=1, cnt=512
+SELECT MAX(version), count(*) FROM PSXPTMPLDEFN
+max=1, cnt=752
+SELECT MAX(version), count(*) FROM PSX_TREEBRANCH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_AE_GB_AET
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_APPR_RULE_HDR
+max=1, cnt=30
+SELECT MAX(version), count(*) FROM PS_ARCH_PROJ
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EDIOUTMAPWHERE
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EODI_XFR_FILE
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ARC_FLST
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETLC_FLST
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETLC_INC
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETLC_POOL
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETLC_VER
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETLRUN_AET
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETL_FLD
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETL_MAP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETL_MAPLNG
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETL_STEP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_ETL_STPLNG
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_EXE_FLD
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_EXE_MAP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_RUN_CNTL
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOEW_RUN_PROC
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_EOTF_MAP_DEFN
+max=15, cnt=119
+SELECT MAX(version), count(*) FROM PS_ERE_ATTACH_ESP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_FM_ATTACH_ESP
+max=1, cnt=410
+SELECT MAX(version), count(*) FROM PS_FM_TMP_ESP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_FORM_ATTACHMENT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GB_GROUP_TBL
+max=22, cnt=654
+SELECT MAX(version), count(*) FROM PS_GB_TMP_GB001
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GB_VERSION_MGMT
+max=22, cnt=447
+SELECT MAX(version), count(*) FROM PS_GPCH_BK_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPCH_FM_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPCH_FM_TMP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPDE_BK_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPDE_BS_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPDE_FM_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPDE_FM_TMP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPDE_SS_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPES_CRT_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_EDI_ADJ
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_EDI_ADJ_NI
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_EYU_RSLT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_EYU_TMP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_FILE_STORE
+max=1, cnt=8
+SELECT MAX(version), count(*) FROM PS_GPGB_RNCTL_EDI
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_RNCTL_RTI
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_RNCTL_RTI2
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_RTI_ADJ
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_RTI_ADJ_NI
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_RTI_ADJ_TR
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPGB_RUNCTL_SQR
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPIN_DS_SIGFL
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPIN_SS_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPSG_MOM_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_GPS_RPT_ATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_HCMD_META_TBL
+max=1, cnt=46
+SELECT MAX(version), count(*) FROM PS_HRCD_ATTACH_ESP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_HRS_ATTACHMENTS
+max=1, cnt=390
+SELECT MAX(version), count(*) FROM PS_HR_ATT_FILES
+max=1, cnt=67
+SELECT MAX(version), count(*) FROM PS_HR_ATT_FILES_DD
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_HR_DI_ATTCH_BEL
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_IB_CHANNEL_AET
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_MESSAGE_SET_CPY
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PA_SP_ATT_FILES
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PRCSDEFN
+max=1, cnt=2605
+SELECT MAX(version), count(*) FROM PS_PRCSJOBDEFN
+max=1, cnt=235
+SELECT MAX(version), count(*) FROM PS_PRCSRECUR
+max=1, cnt=8
+SELECT MAX(version), count(*) FROM PS_PRCSTYPEDEFN
+max=1, cnt=188
+SELECT MAX(version), count(*) FROM PS_PSMAILATTACH
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PSMAILATTACHTMP
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PSXSDFILE_ATT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PTACM_FILE_ATT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PTAI_DOCINDB
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PTBR_THEME_CSS
+max=1, cnt=1
+SELECT MAX(version), count(*) FROM PS_PTBR_THEME_DEL
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PTCAC_AUTHCONF
+max=0, cnt=118
+SELECT MAX(version), count(*) FROM PS_PTCAC_AUTHORIZE
+max=0, cnt=148
+SELECT MAX(version), count(*) FROM PS_PTDM_XMLDATA
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PTFP_DOCINDB
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PTIA_STATE_AET
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PTLT_FILE_ATT
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PTRTDB
+max=1, cnt=16
+SELECT MAX(version), count(*) FROM PS_PTUPG_STATE_AET
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PY_RLCAN_ATTDET
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_PY_SSP_XML_DATA
+max=1, cnt=24673
+SELECT MAX(version), count(*) FROM PS_PY_SS_HOWTO_FLE
+max=1, cnt=196
+SELECT MAX(version), count(*) FROM PS_PY_T4CAN_ATTDET
+max=1, cnt=1754
+SELECT MAX(version), count(*) FROM PS_PY_W2US_ATTDET
+max=1, cnt=2667
+SELECT MAX(version), count(*) FROM PS_SCHDLDEFN
+max=1, cnt=1
+SELECT MAX(version), count(*) FROM PS_SCRTY_QUERY
+max=1277, cnt=843
+SELECT MAX(version), count(*) FROM PS_SERVERDEFN
+max=9, cnt=6
+SELECT MAX(version), count(*) FROM PS_SET_CNTRL_TBL
+max=1, cnt=1543
+SELECT MAX(version), count(*) FROM PS_TL_ACCT_CD_WRK
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_TREE_MAINT_AET
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_UPG_HRS_OI_AET
+max=, cnt=0
+SELECT MAX(version), count(*) FROM PS_XML_ATTACH
+max=1, cnt=6
+
+PL/SQL procedure successfully completed.
+
+Elapsed: 00:00:02.64
+SQL> 
+SQL> column recname format a15
+SQL> column table_name format a18
+SQL> column recdescr format a30
+SQL> column descrlong format a80
+SQL> column max format 9999999
+SQL> column cnt format 9999999
+SQL> select object_name table_name
+  2  ,	    object_instance max
+  3  ,	    cost	 cnt
+  4  ,	    remarks	 recdescr
+  5  ,	    other	 descrlong
+  6  from plan_table
+  7  where statement_id = 'PSVERSION'
+  8  order by 2,1
+  9  /
+
+TABLE_NAME              MAX      CNT RECDESCR                       DESCRLONG
+------------------ -------- -------- ------------------------------ --------------------------------------------------------------------------------
+PSPGCORE                  0       69 Core Pivot Grid Record
+PSUSEROPTNDEFN            0       55 User Personalization Admin     Administrator table for setting personalization defaults and determining which o
+                                                                    ptions a user may personalize.
+
+PSWEBPROFILE              0        7 Web Profile
+PS_PTCAC_AUTHCONF         0      118 Centralised Auth Conf record   New record for Centralised Authorization Configuration
+PS_PTCAC_AUTHORIZE        0      148 Centralised Auth Conf record   New record for Centralised Authorization Configuration
+PSACEMDLDEFN              1        1
+PSACTIVITYDEFN            1      510 Activity Description           *** IMPORTANT *** please remove HELPCONTEXTNUM and make corresponding code chang
+                                                                    es with next required table alteration.
+
+PSADSDEFN                 1      192 ADS Data Set Definition
+PSAEAPPLDEFN              1     1699 AE Application Defn
+PSAESECTDEFN              1     8414 AE Section Definition
+PSARCHOBJDEFN             1       64 Archiving Object Definition
+PSARCHTEMPLATE            1       53 Archive Template Defn
+PSBUSPROCDEFN             1      124 Business Process Definition    *** IMPORTANT *** please remove HELPCONTEXTNUM and make corresponding code chang
+                                                                    es with next required table alteration.
+
+PSCERTDEFN                1       20 Certificates
+PSCOLORDEFN               1        9 Color Definition
+PSCONQRSDEFN              1       30 Connected Queries Definition   Connected Queries Definition Table
+PSCONTDEFN                1     6025
+PSDBFIELD                 1    72502 Database Field
+PSDIAGREG                 1       50 Diagnostic Framework           Diagnostic Framework plug-in Registration
+PSDOCLODEFN               1        8 Document Layout Manager
+PSDOCTPLDEFN              1        4 Document Template Defintion
+PSFILEDEFN                1      890
+PSFILEREDEFN              1     9220
+PSFILE_ATTDET             1        1
+PSFLDDEFN                 1      454 File Layout - File Defns       A File Layout is a definition (or mapping) of a file to be processed. It identif
+                                                                    ies where in a file data fields are located. Once a File Layout has been created
+                                                                    , you can write PeopleCode programs that use the File Layout to either read data
+                                                                     from or write data to a file.
+                                                                    This record contains all information stored at the File Layout (root) level.
+
+PSFMTDEFN                 1       30 Format Definition Table
+PSFP_DATATYPE             1        5 Feed Data Type
+PSIBGROUPDEFN             1      100 Integration Group Manager
+PSIBSCMADFN               1     3490 IB Schema Managed Object
+PSIBWSDLDFN               1       17 IB WSDL Managed Object
+PSIMPDEFN                 1        1 Import Definition
+PSIODEFN                  1       51
+PSLSDEFN                  1       91
+PSLSDEPDEFN               1       17
+PSMAPMDEFN                1        3 MAP Administator Defintion
+PSMENUDEFN                1      417 Menu Definition
+PSMPDEFN                  1        2
+PSMSGDEFN                 1     4037 Application Message Definition Table for PeopleTools Application Messaging Definition objects.  A message is a
+                                                                    group of records that is sent between systems.  Messages are created and edited
+                                                                    using the Application Designer.
+
+PSMSGSETDEFN              1      671 Message Sets                   Contains the definition of the Message Set numbers.  These are an assignment of
+                                                                    related messages that contain related messages.
+
+                                                                    Each message set is swapped as a unit by the online system.
+
+PSOPERATION               1     1907 IB Services
+PSOPRHDLR                 1     1718 IB Server Handlers
+PSOPRVERDFN               1     2022 IB Service Versions
+PSOPTPRBTYPE              1        1 Optimization Problem Types     This table stores the optimization applications installed in a database. Each op
+                                                                    timization application is identified by a problem type.
+
+PSPGDTYPE                 1        2 Pivot Grid Datat Type Table
+PSPHYSSCHDEFN             1      261
+PSPNLGRPDEFN              1     7011 Panel Group Definition
+PSPRDMDEFN                1        8 Portal Definition Table        Portal Registry Definition Table
+PSPROJECTDEFN             1      606 Project Definition Table
+PSPTCSSRVCONF             1     6335
+PSPTCSSRVDEFN             1      369 Define Related Content Service Define Related Content Service
+PSPTCS_MENU_TBL           1      280
+PSPTCS_SRVCFG             1      142
+PSPTSF_ATTRS              1      384
+PSPTSF_SD                 1       32
+PSPTSF_SRCCAT             1       37 Search Categories
+PSQRYDEFN                 1     1931 Query Definition
+PSQUEUEDEFN               1      178 QUEUE MANAGER
+PSROLEDEFN                1      531 Role Definition                This table stores PeopleSoft Role definitions. (User get permissions to PeopleSo
+                                                                    ft objects through Roles, which are assigned Permission Lists.)
+
+PSSERVICE                 1      920 IB Services
+PSSPCDDLPARM              1       78 Space DDL Parameters
+PSSPTDEFN                 1        1
+PSSQLDEFN                 1    50318 SQL Object Defn
+PSSTYLEDEFN               1       23 Style Definition
+PSSTYLSHEETDEFN           1      218
+PSSUBDEFN                 1      232 Subscription Definition        PSSUBDEFN
+PSTOOLBARDEFN             1        1 Toolbar Definition
+PSTREEBRANCH              1        3 Tree Branch
+PSTREEDEFN                1      271 Tree Definition
+PSTREESTRCT               1       20 Tree Structure
+PSTYPECODEDEFN            1      334
+PSURLDEFN                 1      196 URL Table
+PSXPDATASRC               1      414 BIP Data Source Definition     Data Source definition table for BI Publisher
+PSXPRPTDEFN               1      688 BIP Report Definition          Report definition for BI Publisher
+PSXPSCHEMAFLMN            1      252
+
+TABLE_NAME              MAX      CNT RECDESCR                       DESCRLONG
+------------------ -------- -------- ------------------------------ --------------------------------------------------------------------------------
+PSXPSMPLDTMN              1      512
+PSXPTMPLDEFN              1      752 BIP Template Definition        This table stores template (including sub-template) definition for BI Publisher.
+                                                                      Template definition has eff-dated template files as a child object.
+
+PS_APPR_RULE_HDR          1       30 Approval Rule Defn Hdr
+PS_FM_ATTACH_ESP          1      410 Attachment record              Attachment record
+PS_GPGB_FILE_STORE        1        8 Record to Store Files          Record to Store Files
+PS_HCMD_META_TBL          1       46 Object Descriptor              Created by Eric Solberg 2/18/02
+                                                                    An object descriptor is an enhanced set of metadata above tools-level metadata t
+                                                                    hat describes objects and relationships.
+
+PS_HRS_ATTACHMENTS        1      390 eRecruit Attachments           Stores binary attachments used in the eRecruit system.
+PS_HR_ATT_FILES           1       67 Attachment Files Record        Attachment Files Record
+PS_PRCSDEFN               1     2605 Process Defn                   This record is used for defining processes that can run within the Process Sched
+                                                                    uler. Security information like panel groups and process groups is also provided
+                                                                     here.
+
+PS_PRCSJOBDEFN            1      235 Job Defn                       This record is used to organize individual processes into jobs. One or more proc
+                                                                    esses organized as a job can be scheduled to run as a job. These processes could
+                                                                     be of the same or different type and can run either in series or parallel.
+
+PS_PRCSRECUR              1        8 Recurrence Defn                This record is used to define recurrences. Recurrences allow process requests to
+                                                                     repeat at a specified date/time.
+
+PS_PRCSTYPEDEFN           1      188 Process Type Defn              This record is used to define the process parameters that vary depending on the
+                                                                    process type, database platform and operating system.
+
+PS_PTBR_THEME_CSS         1        1 Theme Style Sheet Mapping
+PS_PTRTDB                 1       16 FCK Editor Image Upload
+PS_PY_SSP_XML_DATA        1    24673 Filing Instructions            This record stores year end filing instructions.
+PS_PY_SS_HOWTO_FLE        1      196 Filing Instructions            This record stores year end filing instructions.
+PS_PY_T4CAN_ATTDET        1     1754 XML Data Files                 This record stores employee year end slips in XML format.
+PS_PY_W2US_ATTDET         1     2667 XML Data Files                 This record stores employee year end forms in XML format.
+PS_SCHDLDEFN              1        1 Schedule Definition
+PS_SET_CNTRL_TBL          1     1543 TableSet Controls
+PS_XML_ATTACH             1        6 Attachment record              Attachment record
+PSPACKAGEDEFN             2     3180 Application Package Defn
+PSPNLDEFN                 2    12869 Panel Definition               Please remove HELPCONTEXTNUM the next time this record is modified.  This will r
+                                                                    equire coding changes that remove it from caching, data structures and SQL statm
+                                                                    ents.
+
+PSXLATDEFN                2     8605 Translate Value
+PSGATEWAY                 5        1
+PSPRUFDEFN                5        3 Portal Registry Favorites Defn Portal Registry Favorites Definition
+PSBCDEFN                  7      388 Comp Intfc Defn                Contains information of the Component Interface.
+PS_SERVERDEFN             9        6 Server Defn                    This record is used for defining process scheduler servers.
+PSMSGNODEDEFN            11       59 Message Node Definition        PSMSGNODEDEFN is a Tools table that holds definitions for Message Node objects.
+                                                                    Message Nodes represent databases in Application Messaging.  You create and modi
+                                                                    fy Message Node objects with the Application Designer.
+
+PSCLASSDEFN              13      878 Permissions Lists Definition
+PS_EOTF_MAP_DEFN         15      119 TF Value Map Definitions       Defines a Value Map in the Enterprise Transformation Framework
+PSRECDEFN                21    40731 Record Definition
+PS_GB_GROUP_TBL          22      654 Group Build Main Table         This Record holds the definition of a group
+PS_GB_VERSION_MGMT       22      447 GB Version Management          This Record contains the different versions of the Generated Groups
+PSACCESSPRFL             23        1 Access Profile
+PSFP_FEED               103       36 Feed Definitions
+PSDOCSCMADFN            357       89 Document Schema Managed Object
+PSPRSMDEFN             1004    15192 Portal Structure Defn Tbl      Portal Registry Structure Definition Table
+PS_SCRTY_QUERY         1277      843 PS/Query Profile
+PSIBRTNGDEFN           1742     1741 IB Routing Definitions
+PSOPRDEFN              2473      234 Operator Definition            This table defines PeopleSoft Users. This is also a core table for User Profile
+                                                                    Manager.
+
+PSPCMPROG            109239    87276 PeopleCode Program
+PSLOCK               109243      112 Manager locking versions
+PSVERSION            113031      113 Manager notification versions
+PSSTATUS             157102        1 PeopleTools System Control
+
+119 rows selected.
+
+Elapsed: 00:00:00.11
+SQL> 
+SQL> select * from psversion
+  2  union
+  3  select * from pslock
+  4  order by 2,1
+  5  /
+
+OBJECTTY    VERSION
+-------- ----------
+ACM               1
+ADSM              1
+ARCOM             1
+ARCTM             1
+ATM               1
+BMM               1
+BPM               1
+CBCNM             1
+CBDIM             1
+CBOTM             1
+CBTPM             1
+CDM               1
+CERTM             1
+CPQDM             1
+CQDM              1
+DIAGM             1
+DLOM              1
+DOCPC             1
+DTPLM             1
+FCATM             1
+FDM               1
+FDTM              1
+FILEM             1
+FLDM              1
+FLM               1
+FRM               1
+HPM               1
+IDM               1
+INTGM             1
+IOM               1
+JPUP              1
+KEYM              1
+LSDDM             1
+LSDM              1
+MAPM              1
+MPM               1
+OPRHM             1
+OPRM              1
+OPRVM             1
+PBM               1
+PRUH              1
+PSC               1
+PSCHM             1
+PSH               1
+PSR               1
+QAL               1
+QDM               1
+QUEM              1
+RCMTM             1
+RCSCM             1
+RCSDM             1
+REST              1
+RLM               1
+ROLM              1
+ROM               1
+SATRM             1
+SCATM             1
+SCMA              1
+SCNFM             1
+SDEFM             1
+SDM               1
+SPTM              1
+SRVM              1
+SSM               1
+STM               1
+SUDM              1
+TAM               1
+TBM               1
+TDM               1
+THM               1
+TSM               1
+TSTCM             1
+TSTM              1
+TYC               1
+VAM               1
+WSCPH             1
+WSDL              1
+WSPLT             1
+WSPRD             1
+XPDSM             1
+XRRDM             1
+XTRDM             1
+APM               2
+CHDM              2
+NTM               2
+PGM               2
+PRDM              2
+RSM               2
+RSTM              2
+SCTXM             2
+UPM               2
+XTM               2
+AES               3
+GTM               3
+MDM               3
+PDM               3
+
+OBJECTTY    VERSION
+-------- ----------
+AEM               4
+SRM               4
+GTM               5
+PRUF              5
+BCM               7
+PPC               8
+MSDM              9
+PPC               9
+MNDM             11
+MNDM             12
+SYS              18
+RDM              21
+CLM              23
+PJM              37
+FDFM            103
+DSCMA           357
+CRM             583
+PRSM           1004
+RTDM           1742
+UPM            2473
+PCM          109243
+SYS          113031
+
+118 rows selected.
+
+Elapsed: 00:00:00.04
+SQL> 
+SQL> spool off
