@@ -222,6 +222,14 @@ insert into plan_table (statement_id, object_type, object_name, object_alias, id
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','FIELDTYPE','PSPNLFIELD',31,'31=Push Button/Link - Instant Message Action');
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','FIELDTYPE','PSPNLFIELD',32,'32=Analytic Grid');
 
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECTYPE','PSRECDEFN',0,'0=SQL Table');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECTYPE','PSRECDEFN',1,'1=SQL View');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECTYPE','PSRECDEFN',2,'2=Derived Work/Record');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECTYPE','PSRECDEFN',3,'3=Subrecord');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECTYPE','PSRECDEFN',5,'5=Dynamic View');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECTYPE','PSRECDEFN',6,'6=Query View');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECTYPE','PSRECDEFN',7,'7=Temporary Table');
+
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSRECDEFN',1,'1=Add');
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSRECDEFN',2,'2=Change');
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSRECDEFN',4,'4=Delete');
