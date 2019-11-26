@@ -55,7 +55,8 @@ BEGIN
    WHERE  (r.objectownerid = 'PPT' OR r.recname = r.sqltablename)
 -- AND    o.objgroupid = 'PEOPLETOOLS'
 -- AND    o.entname = r.recname
-   AND    r.rellangrecname = p_recname;
+   AND    r.rellangrecname = p_recname
+   AND    ROWNUM=1;
 
   IF l_found = 1 THEN
     l_html := '<a href="'||LOWER(p_recname)||k_suffix||'">'||p_recname||'</a>';
