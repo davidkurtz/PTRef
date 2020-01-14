@@ -235,6 +235,11 @@ insert into plan_table (statement_id, object_type, object_name, object_alias, id
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSRECDEFN',4,'4=Delete');
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSRECDEFN',8,'8=Selective');
 
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSAEAPPLDEFN',1,'1=Abort - If non-shared Tables cannot be assigned:');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSAEAPPLDEFN',2,'2=Batch Only');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSAEAPPLDEFN',4,'4=Share Tables in Online Mode');
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','RECUSE','PSAEAPPLDEFN',8,'8=Use Delete for Truncate Table');
+
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','AUXFLAGMASK','PSRECDEFN',16,'65536=Tools Table');
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','AUXFLAGMASK','PSRECDEFN',17,'131072=Managed Tools Table');
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','AUXFLAGMASK','PSRECDEFN',18,'262144=In use, but not yet sure what it does!');
