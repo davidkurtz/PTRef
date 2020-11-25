@@ -11,7 +11,7 @@ from dual
 ;
 
 select 	DISTINCT 
-	'spool "peopletools\'||LOWER(recname)||'.htm"'
+	'spool "peopletools/'||LOWER(recname)||'.htm"'
 ,	'execute ptref.pthtml('''||r.recname||''');'
   FROM   psrecdefn r
 --,	     psobjgroup o
@@ -22,7 +22,7 @@ select 	DISTINCT
 --and recname = 'PSTIMEZONE'
 /
 select 	DISTINCT 
-	'spool "peopletools\'||LOWER(f.fieldname)||'.htm"'
+	'spool "peopletools/'||LOWER(f.fieldname)||'.htm"'
 ,	'execute ptref.ptxlat('''||f.fieldname||''');'
   FROM   psdbfield f, plan_table x
   WHERE  f.fieldname = x.object_name
