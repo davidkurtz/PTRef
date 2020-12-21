@@ -62,7 +62,7 @@ insert into plan_table (statement_id, object_type, object_name, object_alias, op
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','OBJECTID6','*','',', as <a href="#OBJECTID1">OBJECTID1<a>');
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','OBJECTID7','*','',', as <a href="#OBJECTID1">OBJECTID1<a>');
 
-insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','FIELDTYPE','*','',' (from <a href="http://psst0101.wordpress.com/2008/12/03/pspnldefnfieldtype/">PSST0101<a>)');
+insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','FIELDTYPE','*','',' (from <a href="http://psst0101.digitaleagle.com/2008/12/03/pspnldefnfieldtype/" target="_blank">PSST0101<a>)');
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','RECNAME_PARENT','*','','. If this comes from a sub-record, this column has the name of the sub-record, otherwise it has the same value as RECNAME.');
 insert into plan_table (statement_id, object_type, object_name, object_alias, options, other_xml) VALUES ('PTREF','FIELD','SQLID','*','','. This column has different meanings depending upon value of SQLTYPE<br><li>SQLTYPE = 0: SQL object name<br><li>SQLTYPE = 1: Application Engine Step Identifier<br><li>SQLTYPE = 2: RECNAME<br><li>SQLTYPE = 6: Application Engine XSLT (XML definition)');
 
