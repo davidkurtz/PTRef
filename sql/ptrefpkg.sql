@@ -86,6 +86,7 @@ PROCEDURE pthtml
  l_parentrecname  VARCHAR2(15);
  l_rectype        INTEGER;
  l_descrlong      CLOB;
+ l_sqltext        CLOB;
  l_newline        BOOLEAN;
  
  l_datatype       VARCHAR2(100);
@@ -127,7 +128,7 @@ BEGIN
   dbms_output.put_line(l_descrlong||'<br>');
  END IF;
 
-IF l_rectype = '1' THEN
+IF l_rectype = '1' THEN --get view text
  dbms_output.put_line('<table><tr><td>');
  FOR j IN(
   SELECT *
@@ -154,7 +155,23 @@ IF l_rectype = '1' THEN
   )
   ORDER BY seqnum
  ) LOOP
-   dbms_output.put_line(j.sqltext);
+  l_sqltext := j.sqltext;
+  FOR k IN ( --add links to PT records referenced in views
+    SELECT r0.recname, d.referenced_name --, r1.recname
+    ,      REGEXP_REPLACE(l_sqltext,d.referenced_name,'<a href="'||lower(r1.recname)||k_suffix||'">'||d.referenced_name||'</a>',1,0,'i') new_sqltext
+    FROM   psrecdefn r0
+    ,      user_dependencies d
+    ,      psrecdefn r1
+    WHERE  r0.recname = p_recname
+    AND    d.name = DECODE(r0.sqltablename,' ','PS_'||r0.recname,r0.sqltablename)
+    AND    d.referenced_owner = user
+    AND    d.referenced_name = DECODE(r1.sqltablename,' ','PS_'||r1.recname,r1.sqltablename)
+    AND    (r0.objectownerid = 'PPT' OR r0.recname = r0.sqltablename)
+    AND    (r1.objectownerid = 'PPT' OR r1.recname = r1.sqltablename)
+   ) LOOP
+     l_sqltext := k.new_sqltext;
+   END LOOP;
+   dbms_output.put_line(l_sqltext);
  END LOOP;
  dbms_output.put_line('</td><tr>');
  END IF;
@@ -223,7 +240,6 @@ IF l_rectype = '1' THEN
    dbms_output.put_line('</li><p>');
   END IF;
  END IF;
-
 
  dbms_output.put_line('<table>');
  dbms_output.put_line('<tr>');
