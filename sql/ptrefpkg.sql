@@ -1,4 +1,6 @@
-rem ptrefpkg.sql
+REM ptrefpkg.sql
+REM (c)2022 David Kurtz, www.go-faster.co.uk 
+
 set echo on lines 200 pages 999
 @@ptrefdata.sql
 spool ptrefpkg
@@ -22,7 +24,7 @@ k_amp    CONSTANT VARCHAR2(10) := '&'||'amp';
 k_back   CONSTANT VARCHAR2(100) := '<a href="_ptindex.htm">index</a> <a href="javascript:javascript:history.go(-1)">back</A>';
 k_copy   CONSTANT VARCHAR2(10) := '&'||'copy';
 k_key    CONSTANT VARCHAR2(40) := '<img border="0" src="../static/key.gif">';
-k_msg    CONSTANT VARCHAR2(200) := '(c)David Kurtz 2020, <a target="_blank" href="http://www.go-faster.co.uk">www.go-faster.co.uk</a>';
+k_msg    CONSTANT VARCHAR2(200) := '(c)David Kurtz 2022, <a target="_blank" href="http://www.go-faster.co.uk">www.go-faster.co.uk</a>';
 k_ptdir  CONSTANT VARCHAR2(30) := ''; --location of generated files relative to index page
 k_space  CONSTANT VARCHAR2(30) := '&'||'nbsp;';
 k_suffix CONSTANT VARCHAR2(10) := '.htm';

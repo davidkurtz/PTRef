@@ -1,4 +1,6 @@
 REM psversionmatch.sql
+REM (c)2022 David Kurtz, www.go-faster.co.uk 
+
 set echo on timi on pages 99 lines 200 trimspool on LONG 50000
 spool psversionmatch.lst
 

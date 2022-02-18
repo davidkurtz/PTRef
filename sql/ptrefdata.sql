@@ -1,4 +1,6 @@
 REM ptrefdata.sql
+REM (c)2022 David Kurtz, www.go-faster.co.uk 
+
 set autotrace off echo on verify on feedback on
 spool ptrefdata
 

@@ -1,4 +1,5 @@
 REM pthtml.sql
+REM (c)2022 David Kurtz, www.go-faster.co.uk 
 
 clear screen
 set termout off serveroutput on 

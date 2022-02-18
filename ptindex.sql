@@ -1,3 +1,6 @@
+REM ptindex.sql
+REM (c)2022 David Kurtz, www.go-faster.co.uk 
+
 clear screen
 set serveroutput on echo off trimspool on head off lines 200 termout off autotrace off
 @@sql/ptrefpkg
