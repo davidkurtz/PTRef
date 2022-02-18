@@ -245,6 +245,8 @@ insert into plan_table (statement_id, object_type, object_name, object_alias, id
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','AUXFLAGMASK','PSRECDEFN',18,'262144=In use, but not yet sure what it does!');
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','AUXFLAGMASK','PSRECDEFN',19,'524288=Server -> User (Down Sync)');
 insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','AUXFLAGMASK','PSRECDEFN',20,'1048576=User -> Server (Up Sync)');
+--REM 18.2.2022 - thanks to Martin Heisler
+insert into plan_table (statement_id, object_type, object_name, object_alias, id, other_xml) VALUES ('PTREF','VAL','AUXFLAGMASK','PSRECDEFN',22,'4194304=Global Temporary Table');
 
 commit;
 
